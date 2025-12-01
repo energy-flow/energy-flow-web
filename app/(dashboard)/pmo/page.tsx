@@ -1,59 +1,80 @@
 'use client';
 
-import { useWorkflowStatus } from '@/hooks/usePricingDAO';
-import {Button} from "@/components/ui/button";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Loader2} from "lucide-react";
-
-const WORKFLOW_LABELS = [
-    'RegisteringVoters',
-    'ProposalsRegistrationStarted',
-    'ProposalsRegistrationEnded',
-    'VotingSessionStarted',
-    'VotingSessionEnded',
-    'VotesTallied',
-] as const;
-
-type TxHash = `0x${string}`;
-type WorkflowStatusFn =
-    | "startProposalsRegistering"
-    | "endProposalsRegistering"
-    | "startVotingSession"
-    | "endVotingSession"
-    | "tallyVotes";
+import { useCallback } from 'react';
+import { useWorkflowStatus, useProposal, useDAOMembers } from '@/hooks/pricingDAO';
+import { WorkflowSection, ProposalSection, MembersSection } from './_components';
 
 export default function PMODashboard() {
-    const { data: status, isLoading, error, refetch: refetchStatus } = useWorkflowStatus();
+    // Hooks
+    const {
+        data: status,
+        isLoading: isLoadingStatus,
+        error: statusError,
+        refetch: refetchStatus,
+    } = useWorkflowStatus();
 
-    const WBtn = ({label, ws, enabled}: { label: string; ws: WorkflowStatusFn; enabled: boolean }) => (
-        <Button disabled={!enabled}>
-            {/*{pendingWorkflow === ws ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}*/}
-            {label}
-        </Button>
-    );
+    const {
+        members,
+        isLoading: isLoadingMembers,
+        error: membersError,
+        refetch: refetchMembers,
+    } = useDAOMembers();
 
-    // TODO: changer ca
-    if (isLoading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error.message}</p>;
+    const {
+        hasActiveProposal,
+        proposal,
+        currentPrice,
+        isLoading: isLoadingProposal,
+        refetch: refetchProposal,
+    } = useProposal();
+
+    // Handlers (mémoïsés pour éviter les re-renders des composants enfants)
+    const handleStatusChange = useCallback(() => {
+        refetchStatus();
+    }, [refetchStatus]);
+
+    const handleProposalChange = useCallback(() => {
+        refetchStatus();
+        refetchProposal();
+    }, [refetchStatus, refetchProposal]);
+
+    const handleMemberChange = useCallback(() => {
+        refetchMembers();
+    }, [refetchMembers]);
+
+    // Loading & Error states
+    if (isLoadingStatus) return <p>Chargement...</p>;
+    if (statusError) return <p>Erreur: {statusError.message}</p>;
+
+    const workflowStatus = status as number;
 
     return (
-        // <div>
-        //     <h1 className="text-2xl font-bold mb-4">PMO Dashboard</h1>
-        //     <p>Workflow Status: <strong>{WORKFLOW_LABELS[Number(status)] ?? 'Unknown'}</strong></p>
-        // </div>
-        <Card className="mb-8 mt-8">
-            <CardHeader>
-                <CardTitle>Worflow status</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex flex-wrap gap-2">
-                    <WBtn label="Start Proposals" ws="startProposalsRegistering" enabled={status === 0} />
-                    <WBtn label="End Proposals"   ws="endProposalsRegistering"   enabled={status === 1} />
-                    <WBtn label="Start Voting"    ws="startVotingSession"        enabled={status === 2} />
-                    <WBtn label="End Voting"      ws="endVotingSession"          enabled={status === 3} />
-                    <WBtn label="Tally Votes"     ws="tallyVotes"                enabled={status === 4} />
-                </div>
-            </CardContent>
-        </Card>
+        <div className="space-y-8 py-8">
+            {/* Section Workflow + Proposition */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <WorkflowSection
+                    status={workflowStatus}
+                    onStatusChange={handleStatusChange}
+                    onCycleReset={handleProposalChange}
+                />
+
+                <ProposalSection
+                    proposal={proposal}
+                    currentPrice={currentPrice}
+                    hasActiveProposal={hasActiveProposal}
+                    isLoading={isLoadingProposal}
+                    workflowStatus={workflowStatus}
+                    onProposalCreated={handleProposalChange}
+                />
+            </div>
+
+            {/* Section Membres */}
+            <MembersSection
+                members={members}
+                isLoading={isLoadingMembers}
+                error={membersError}
+                onMemberChange={handleMemberChange}
+            />
+        </div>
     );
 }
