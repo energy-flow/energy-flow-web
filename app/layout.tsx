@@ -9,12 +9,12 @@ type Props = Readonly<{ children: React.ReactNode }>;
 export default function RootLayout({ children }: Props) {
     return (
         <html lang="en">
-        <body>
-        <Toaster closeButton />
-        <Providers>
-            <Layout>{children}</Layout>
-        </Providers>
-        </body>
+            <body>
+                <Toaster closeButton />
+                <Providers>
+                    <Layout>{children}</Layout>
+                </Providers>
+            </body>
         </html>
     );
 }
