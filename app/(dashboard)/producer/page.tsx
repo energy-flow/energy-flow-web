@@ -1,8 +1,10 @@
 'use client';
 
-import {useCallback} from "react";
-import {useGetProposalData, useWorkflowStatus} from "@/hooks/pricingDAO";
-import {MemberVotingSection} from "@/components/MemberVotingSection";
+import { useCallback } from "react";
+import { useGetProposalData, useWorkflowStatus } from "@/hooks/contracts/pricingDAO";
+import { MemberVotingSection } from "@/components/MemberVotingSection";
+import ProductionHistory from "@/components/ProductionHistory";
+import { useGetProducerLinkyHistory } from "@/hooks/api/linky";
 
 export default function ProducerDashboard() {
     const {
@@ -18,6 +20,8 @@ export default function ProducerDashboard() {
         isLoading: isLoadingProposal,
         refetch: refetchProposal,
     } = useGetProposalData();
+
+    const { data: linkyData } = useGetProducerLinkyHistory('user-123');
 
     const handleVoteSuccess = useCallback(() => {
         refetchStatus();
@@ -41,6 +45,7 @@ export default function ProducerDashboard() {
                 isLoading={isLoadingProposal}
                 onVoteSuccess={handleVoteSuccess}
             />
+            <ProductionHistory data={linkyData?.history ?? []} year={linkyData?.year ?? 0} />
         </div>
     );
 }

@@ -1,0 +1,1 @@
+export { useEFTConfig } from './config';

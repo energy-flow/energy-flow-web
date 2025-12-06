@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useWorkflowStatus, useGetProposalData, useGetMembers } from '@/hooks/pricingDAO';
+import { useWorkflowStatus, useGetProposalData, useGetMembers } from '@/hooks/contracts/pricingDAO';
 import { WorkflowSection, ProposalSection, MembersSection } from './_components';
 
 export default function PMODashboard() {

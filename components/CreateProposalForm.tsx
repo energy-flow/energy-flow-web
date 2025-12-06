@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useCreateProposal } from '@/hooks/pricingDAO';
+import { useCreateProposal } from '@/hooks/contracts/pricingDAO';
 import { Loader2 } from 'lucide-react';
 
 type CreateProposalFormProps = {

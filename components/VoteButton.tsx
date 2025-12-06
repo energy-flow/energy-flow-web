@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { VoteChoice } from '@/hooks/pricingDAO';
+import { VoteChoice } from '@/hooks/contracts/pricingDAO';
 import { Loader2 } from 'lucide-react';
 
 const VOTE_CONFIG = {

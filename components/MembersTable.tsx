@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { type DAOMember, useRemoveMember } from '@/hooks/pricingDAO';
+import { type DAOMember, useRemoveMember } from '@/hooks/contracts/pricingDAO';
 import { Loader2, Trash2 } from 'lucide-react';
 import { useEffect } from 'react';
 

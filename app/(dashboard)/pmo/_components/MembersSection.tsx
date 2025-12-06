@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MembersTable } from '@/components/MembersTable';
 import { AddMemberForm } from '@/components/AddMemberForm';
-import { type DAOMember } from '@/hooks/pricingDAO';
+import { type DAOMember } from '@/hooks/contracts/pricingDAO';
 
 type MembersSectionProps = {
     members: DAOMember[];

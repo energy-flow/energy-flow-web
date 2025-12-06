@@ -9,7 +9,7 @@ import {
     useGetVote,
     useVote,
     WORKFLOW_STATUS_LABELS,
-} from '@/hooks/pricingDAO';
+} from '@/hooks/contracts/pricingDAO';
 
 const VOTE_CHOICE_LABELS: Record<VoteChoice, string> = {
     [VoteChoice.None]: 'Non voté',

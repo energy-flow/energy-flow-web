@@ -1,8 +1,10 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useWorkflowStatus, useGetProposalData } from '@/hooks/pricingDAO';
+import { useWorkflowStatus, useGetProposalData } from '@/hooks/contracts/pricingDAO';
 import {MemberVotingSection} from '@/components/MemberVotingSection';
+import ConsumptionHistory from "@/components/ConsumptionHistory";
+import {useGetConsumerLinkyHistory} from "@/hooks/api/linky";
 
 export default function ConsumerDashboard() {
     const {
@@ -18,6 +20,8 @@ export default function ConsumerDashboard() {
         isLoading: isLoadingProposal,
         refetch: refetchProposal,
     } = useGetProposalData();
+
+    const { data: linkyData } = useGetConsumerLinkyHistory('user-123');
 
     const handleVoteSuccess = useCallback(() => {
         refetchStatus();
@@ -38,6 +42,8 @@ export default function ConsumerDashboard() {
                 isLoading={isLoadingProposal}
                 onVoteSuccess={handleVoteSuccess}
             />
+
+            <ConsumptionHistory data={linkyData?.history ?? []} year={linkyData?.year ?? 0}            />
         </div>
     );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { type WorkflowAction, useWorkflowAction } from '@/hooks/pricingDAO';
+import { type WorkflowAction, useWorkflowAction } from '@/hooks/contracts/pricingDAO';
 import { Loader2 } from 'lucide-react';
 
 type WorkflowButtonProps = {

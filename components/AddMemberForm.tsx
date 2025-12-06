@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAddMember } from '@/hooks/pricingDAO';
+import { useAddMember } from '@/hooks/contracts/pricingDAO';
 import { Loader2 } from 'lucide-react';
 import { isAddress } from 'viem';
 

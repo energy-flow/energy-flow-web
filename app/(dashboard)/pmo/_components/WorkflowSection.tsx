@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { WorkflowButton } from '@/components/WorkflowButton';
-import { type WorkflowAction, WORKFLOW_ACTIONS, WORKFLOW_STATUS_LABELS } from '@/hooks/pricingDAO';
+import { type WorkflowAction, WORKFLOW_ACTIONS, WORKFLOW_STATUS_LABELS } from '@/hooks/contracts/pricingDAO';
 
 type WorkflowSectionProps = {
     status: number;
