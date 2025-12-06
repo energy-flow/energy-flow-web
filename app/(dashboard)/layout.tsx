@@ -4,7 +4,7 @@ type Props = { children: React.ReactNode };
 
 export default function DashboardLayout({children}: Props) {
     return (
-        <RoleGuard allowedRoles={['pmo']}>
+        <RoleGuard allowedRoles={['pmo', 'consumer', 'producer']}>
             {children}
         </RoleGuard>
     );

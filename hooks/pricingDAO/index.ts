@@ -12,7 +12,10 @@ export {
 } from './useWorkflowStatus';
 
 // Hooks Proposal
-export { type ProposalData, useProposal, useCreateProposal } from './useProposal';
+export { type ProposalData, useGetProposalData, useCreateProposal } from './useProposal';
 
 // Hooks Members
-export { type DAOMember, useDAOMembers, useAddMember, useRemoveMember } from './useMembers';
+export { type DAOMember, useGetMembers, useAddMember, useRemoveMember } from './useMembers';
+
+// Hooks Vote
+export { VoteChoice, useGetVote, useVote } from './useVote';

@@ -12,7 +12,6 @@ type Props = {
 };
 
 /**
- * Guards pages by role. Redirects to the user's correct dashboard if they don't have access.
  * Connection check is handled by proxy.ts.
  */
 export function RoleGuard({ allowedRoles, children }: Props) {

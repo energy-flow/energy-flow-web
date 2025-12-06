@@ -1,11 +1,6 @@
 'use client';
 
-import {Alert, AlertTitle, AlertDescription} from "@/components/ui/alert";
-import { useAccount } from "wagmi";
-import {CheckCircle2, Frown, Layers, Leaf, Loader2, PiggyBank, ShieldCheck, Vote, Zap} from 'lucide-react';
-import Link from 'next/link'
-import { ROLE_ROUTES } from "@/lib/constants";
-import {useUserRole} from "@/hooks/useUserRole";
+import {CheckCircle2, Layers, Leaf, PiggyBank, ShieldCheck, Vote, Zap} from 'lucide-react';
 
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useWorkflowStatus, useProposal, useDAOMembers } from '@/hooks/pricingDAO';
+import { useWorkflowStatus, useGetProposalData, useGetMembers } from '@/hooks/pricingDAO';
 import { WorkflowSection, ProposalSection, MembersSection } from './_components';
 
 export default function PMODashboard() {
@@ -18,7 +18,7 @@ export default function PMODashboard() {
         isLoading: isLoadingMembers,
         error: membersError,
         refetch: refetchMembers,
-    } = useDAOMembers();
+    } = useGetMembers();
 
     const {
         hasActiveProposal,
@@ -26,9 +26,8 @@ export default function PMODashboard() {
         currentPrice,
         isLoading: isLoadingProposal,
         refetch: refetchProposal,
-    } = useProposal();
+    } = useGetProposalData();
 
-    // Handlers (mémoïsés pour éviter les re-renders des composants enfants)
     const handleStatusChange = useCallback(() => {
         refetchStatus();
     }, [refetchStatus]);
@@ -50,7 +49,6 @@ export default function PMODashboard() {
 
     return (
         <div className="space-y-8 py-8">
-            {/* Section Workflow + Proposition */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <WorkflowSection
                     status={workflowStatus}
@@ -67,8 +65,6 @@ export default function PMODashboard() {
                     onProposalCreated={handleProposalChange}
                 />
             </div>
-
-            {/* Section Membres */}
             <MembersSection
                 members={members}
                 isLoading={isLoadingMembers}

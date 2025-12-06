@@ -24,7 +24,7 @@ export function useUserRole() {
             {
                 ...contractConfig,
                 functionName: 'hasRole',
-                // TODO: Mettre l'adresse de la PMO
+                // TODO: Set the PMO address
                 args: [
                     '0x0000000000000000000000000000000000000000000000000000000000000000', // DEFAULT_ADMIN_ROLE
                     address,

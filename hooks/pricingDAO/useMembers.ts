@@ -4,16 +4,13 @@ import { useReadContract, useReadContracts, useWriteContract, useWaitForTransact
 import { useMemo } from 'react';
 import { usePricingDAOConfig } from './config';
 
-// ============ Types ============
-
 export type DAOMember = {
     address: `0x${string}`;
     role: 'producer' | 'consumer';
 };
 
-// ============ Read Hooks ============
-
-export function useDAOMembers() {
+// Calls getMembers + isProducer for each member
+export function useGetMembers() {
     const { address, abi, enabled } = usePricingDAOConfig();
 
     // Get member addresses
@@ -64,8 +61,6 @@ export function useDAOMembers() {
         refetch,
     };
 }
-
-// ============ Write Hooks ============
 
 export function useAddMember() {
     const { address, abi } = usePricingDAOConfig();

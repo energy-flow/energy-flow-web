@@ -124,7 +124,7 @@ export function ProposalSection({
 
     return (
         <div className="space-y-8">
-            {/* Carte de proposition */}
+            {/* Proposal card */}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -152,7 +152,7 @@ export function ProposalSection({
                 </CardContent>
             </Card>
 
-            {/* Formulaire de création (conditionnel) */}
+            {/* Creation form (conditional) */}
             {showCreateForm && (
                 <Card>
                     <CardHeader>

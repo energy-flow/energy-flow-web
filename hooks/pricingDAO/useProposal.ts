@@ -29,11 +29,9 @@ type ProposalRawData = {
     consumersVotedAgainst: bigint;
 };
 
-// GET Proposal
-export function useProposal() {
+export function useGetProposalData() {
     const { address, abi, enabled } = usePricingDAOConfig();
 
-    // Fetch basic proposal info
     const { data: basicData, isLoading: isLoadingBasic, error: basicError, refetch } = useReadContracts({
         contracts: [
             { address, abi, functionName: 'hasActiveProposal' },
@@ -43,23 +41,22 @@ export function useProposal() {
         query: { enabled },
     });
 
-    const hasActiveProposal = basicData?.[0]?.result as boolean | undefined;
-    const activeProposalId = basicData?.[1]?.result as bigint | undefined;
-    const currentPrice = basicData?.[2]?.result as bigint | undefined;
+    const hasActiveProposal = basicData?.[0]?.result as boolean;
+    const activeProposalId = basicData?.[1]?.result as bigint;
+    const currentPrice = basicData?.[2]?.result as bigint;
 
-    // Fetch proposal details if active
     const { data: proposalData, isLoading: isLoadingProposal } = useReadContract({
         address,
         abi,
         functionName: 'getProposal',
         args: [activeProposalId],
         query: {
-            enabled: !!hasActiveProposal && activeProposalId !== undefined,
+            enabled: activeProposalId > BigInt(0),
         },
     });
 
     const proposal: ProposalData | null = useMemo(() => {
-        if (!hasActiveProposal || !proposalData || activeProposalId === undefined) {
+        if (!proposalData || activeProposalId === BigInt(0)) {
             return null;
         }
 
@@ -89,7 +86,6 @@ export function useProposal() {
     };
 }
 
-// SET Proposal
 export function useCreateProposal() {
     const { address, abi } = usePricingDAOConfig();
     const { data: hash, writeContract, isPending, error } = useWriteContract();
