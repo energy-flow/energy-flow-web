@@ -1,13 +1,18 @@
 'use client';
 
 import { useCallback } from 'react';
+import { useAccount } from 'wagmi';
 import { useWorkflowStatus, useGetProposalData, useGetMembers } from '@/hooks/contracts/pricingDAO';
-export { WorkflowSection } from './_components/WorkflowSection';
-export { ProposalSection } from './_components/ProposalSection';
-export { MembersSection } from './_components/MembersSection';
+import { useGetAavePosition, useTotalDeposited, useTotalWithdrawn, useGetPmoInfo } from '@/hooks/contracts/AaveVault';
+import { WorkflowSection } from '@/app/(dashboard)/pmo/_components/WorkflowSection';
+import { ProposalSection } from '@/app/(dashboard)/pmo/_components/ProposalSection';
+import { MembersSection } from '@/app/(dashboard)/pmo/_components/MembersSection';
+import { DefiSection } from '@/app/(dashboard)/pmo/_components/DefiSection';
 
 export default function PMODashboard() {
-    // Hooks
+    const { address: pmoAddress } = useAccount();
+
+    // PricingDAO Hooks
     const {
         data: status,
         isLoading: isLoadingStatus,
@@ -30,6 +35,15 @@ export default function PMODashboard() {
         refetch: refetchProposal,
     } = useGetProposalData();
 
+    // AaveVault Hooks
+    const { data: aavePosition, isLoading: isLoadingPosition } = useGetAavePosition();
+    const { data: totalDeposited, isLoading: isLoadingDeposited } = useTotalDeposited();
+    const { data: totalWithdrawn, isLoading: isLoadingWithdrawn } = useTotalWithdrawn();
+    const { data: pmoInfo, isLoading: isLoadingPmoInfo } = useGetPmoInfo(pmoAddress);
+
+    const pmoData = pmoInfo as [bigint, bigint] | undefined;
+    const isLoadingDefi = isLoadingPosition || isLoadingDeposited || isLoadingWithdrawn || isLoadingPmoInfo;
+
     const handleStatusChange = useCallback(() => {
         refetchStatus();
     }, [refetchStatus]);
@@ -51,6 +65,20 @@ export default function PMODashboard() {
 
     return (
         <div className="space-y-8 py-8">
+            <DefiSection
+                pmoDeposited={pmoData?.[0]}
+                pmoWithdrawn={pmoData?.[1]}
+                totalDeposited={totalDeposited as bigint | undefined}
+                totalWithdrawn={totalWithdrawn as bigint | undefined}
+                aavePosition={aavePosition as bigint | undefined}
+                isLoading={isLoadingDefi}
+            />
+            <MembersSection
+                members={members}
+                isLoading={isLoadingMembers}
+                error={membersError}
+                onMemberChange={handleMemberChange}
+            />
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <WorkflowSection
                     status={workflowStatus}
@@ -67,12 +95,6 @@ export default function PMODashboard() {
                     onProposalCreated={handleProposalChange}
                 />
             </div>
-            <MembersSection
-                members={members}
-                isLoading={isLoadingMembers}
-                error={membersError}
-                onMemberChange={handleMemberChange}
-            />
         </div>
     );
 }

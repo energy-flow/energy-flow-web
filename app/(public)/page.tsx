@@ -1,6 +1,8 @@
 'use client';
 
 import {CheckCircle2, Layers, Leaf, PiggyBank, ShieldCheck, Vote, Zap} from 'lucide-react';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
@@ -10,6 +12,9 @@ import StepCard from "@/components/StepCard";
 import MetricCard from "@/components/MetricCard";
 
 export default function Home() {
+  const { openConnectModal } = useConnectModal();
+  const { isConnected } = useAccount();
+
   return (
       <main className="mx-auto max-w-6xl space-y-16 px-4 py-10 lg:space-y-24 lg:px-0">
           {/* HERO */}
@@ -32,15 +37,18 @@ export default function Home() {
                   </p>
 
                   <div className="flex flex-wrap gap-3 pt-2">
-                      <Button className="h-9 rounded-full bg-emerald-500 px-5 text-xs font-semibold text-black hover:bg-emerald-400">
-                          Découvrir le protocole
+                      <Button asChild className="h-9 rounded-full bg-emerald-500 px-5 text-xs font-semibold text-black hover:bg-emerald-400">
+                          <a href="#what-is-energy-flow">Découvrir le protocole</a>
                       </Button>
-                      <Button
-                          variant="outline"
-                          className="h-9 rounded-full border-slate-700 bg-slate-900/60 px-5 text-xs font-semibold text-slate-100 hover:bg-slate-800"
-                      >
-                          Se connecter
-                      </Button>
+                      {!isConnected && (
+                          <Button
+                              variant="outline"
+                              className="h-9 rounded-full border-slate-700 bg-slate-900/60 px-5 text-xs font-semibold text-slate-100 hover:bg-slate-800"
+                              onClick={openConnectModal}
+                          >
+                              Se connecter
+                          </Button>
+                      )}
                   </div>
               </div>
 
@@ -78,7 +86,7 @@ export default function Home() {
           </section>
 
           {/* WHAT IS ENERGY FLOW */}
-          <section className="space-y-6">
+          <section id="what-is-energy-flow" className="space-y-6 scroll-mt-20">
               <div className="flex justify-center">
                   <Badge className="rounded-full bg-sky-500/10 px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-300">
                       Powered by Base Network

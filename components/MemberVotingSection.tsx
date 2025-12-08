@@ -129,35 +129,6 @@ export function MemberVotingSection({
                     </div>
                 </div>
 
-                {/* Vote results */}
-                <div className="space-y-4">
-                    <h4 className="font-medium">Résultats des votes</h4>
-
-                    {/* Producers */}
-                    <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                            <span>Producteurs</span>
-                            <span>{totalProducerVotes} / {Number(proposal.snapshotProducersCount)} votes</span>
-                        </div>
-                        <div className="flex gap-2 text-sm">
-                            <span className="text-green-600">Pour: {Number(proposal.producersVotedFor)}</span>
-                            <span className="text-destructive">Contre: {Number(proposal.producersVotedAgainst)}</span>
-                        </div>
-                    </div>
-
-                    {/* Consumers */}
-                    <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                            <span>Consommateurs</span>
-                            <span>{totalConsumerVotes} / {Number(proposal.snapshotConsumersCount)} votes</span>
-                        </div>
-                        <div className="flex gap-2 text-sm">
-                            <span className="text-green-600">Pour: {Number(proposal.consumersVotedFor)}</span>
-                            <span className="text-destructive">Contre: {Number(proposal.consumersVotedAgainst)}</span>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Voting section */}
                 <div className="pt-4 border-t">
                     {!isVotingPhase ? (
@@ -196,6 +167,35 @@ export function MemberVotingSection({
                             </div>
                         </div>
                     )}
+                </div>
+
+                {/* Vote results */}
+                <div className="space-y-4">
+                    <h4 className="font-medium">Résultats des votes</h4>
+
+                    {/* Producers */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span>Producteurs</span>
+                            <span>{totalProducerVotes} / {Number(proposal.snapshotProducersCount)} votes</span>
+                        </div>
+                        <div className="flex gap-2 text-sm">
+                            <span className="text-green-600">Pour: {Number(proposal.producersVotedFor)}</span>
+                            <span className="text-destructive">Contre: {Number(proposal.producersVotedAgainst)}</span>
+                        </div>
+                    </div>
+
+                    {/* Consumers */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span>Consommateurs</span>
+                            <span>{totalConsumerVotes} / {Number(proposal.snapshotConsumersCount)} votes</span>
+                        </div>
+                        <div className="flex gap-2 text-sm">
+                            <span className="text-green-600">Pour: {Number(proposal.consumersVotedFor)}</span>
+                            <span className="text-destructive">Contre: {Number(proposal.consumersVotedAgainst)}</span>
+                        </div>
+                    </div>
                 </div>
             </CardContent>
         </Card>
