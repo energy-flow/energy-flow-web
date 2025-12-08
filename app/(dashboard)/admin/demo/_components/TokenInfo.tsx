@@ -1,14 +1,16 @@
 'use client';
 
-import { useTotalSupply } from '@/hooks/contracts/EFT';
 import { formatUnits } from 'viem';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-export function TokenInfo() {
-    const { data: totalSupply, isLoading } = useTotalSupply();
+interface TokenInfoProps {
+    totalSupply: bigint | undefined;
+    isLoading: boolean;
+}
 
-    const formattedSupply = totalSupply !== undefined ? formatUnits(totalSupply as bigint, 18) : '0';
+export function TokenInfo({ totalSupply, isLoading }: TokenInfoProps) {
+    const formattedSupply = totalSupply !== undefined ? formatUnits(totalSupply, 18) : '0';
 
     return (
         <Card>

@@ -1,32 +1,32 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useBurnFrom } from '@/hooks/contracts/EFT';
+import { useDeposit } from '@/hooks/contracts/AaveVault';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { isAddress } from 'viem';
 
-interface BurnFormProps {
+interface DepositFormProps {
     onSuccess: () => void;
 }
 
-export function BurnForm({ onSuccess }: BurnFormProps) {
-    const [account, setAccount] = useState('');
+export function DepositForm({ onSuccess }: DepositFormProps) {
+    const [pmoAddress, setPmoAddress] = useState('');
     const [amount, setAmount] = useState('');
 
-    const { burnFrom, isPending, isConfirming, isSuccess, error, reset } = useBurnFrom();
+    const { deposit, isPending, isConfirming, isSuccess, error, reset } = useDeposit();
 
     const prevSuccessRef = useRef(isSuccess);
     const prevErrorRef = useRef(error);
 
-    const isValidAddress = account === '' || isAddress(account);
+    const isValidAddress = pmoAddress === '' || isAddress(pmoAddress);
     const isValidAmount = amount === '' || (!isNaN(Number(amount)) && Number(amount) > 0);
-    const canSubmit = isAddress(account) && Number(amount) > 0;
+    const canSubmit = isAddress(pmoAddress) && Number(amount) > 0;
 
     useEffect(() => {
         if (isSuccess && !prevSuccessRef.current) {
-            toast.success('Transaction de burn confirmée');
+            toast.success('Deposit confirmé');
             onSuccess();
         }
         prevSuccessRef.current = isSuccess;
@@ -42,11 +42,11 @@ export function BurnForm({ onSuccess }: BurnFormProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!canSubmit) return;
-        burnFrom(account as `0x${string}`, amount);
+        deposit(pmoAddress as `0x${string}`, amount);
     };
 
     const handleReset = () => {
-        setAccount('');
+        setPmoAddress('');
         setAmount('');
         reset();
     };
@@ -54,18 +54,18 @@ export function BurnForm({ onSuccess }: BurnFormProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-lg">Burn EFT</CardTitle>
+                <CardTitle className="text-lg">Deposit EURC</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-1">
-                            Adresse du compte
+                            Adresse PMO
                         </label>
                         <input
                             type="text"
-                            value={account}
-                            onChange={(e) => setAccount(e.target.value)}
+                            value={pmoAddress}
+                            onChange={(e) => setPmoAddress(e.target.value)}
                             placeholder="0x..."
                             className={`w-full px-3 py-2 border rounded-md bg-background font-mono text-sm ${
                                 !isValidAddress ? 'border-destructive' : 'border-input'
@@ -78,7 +78,7 @@ export function BurnForm({ onSuccess }: BurnFormProps) {
 
                     <div>
                         <label className="block text-sm font-medium mb-1">
-                            Amount (kWh)
+                            Montant (EURC)
                         </label>
                         <input
                             type="text"
@@ -99,11 +99,10 @@ export function BurnForm({ onSuccess }: BurnFormProps) {
                     <div className="flex gap-2">
                         <Button
                             type="submit"
-                            variant="destructive"
                             disabled={!canSubmit || isPending || isConfirming}
                             className="flex-1"
                         >
-                            {isPending ? 'Confirmation...' : isConfirming ? 'Burn en cours...' : 'Burn'}
+                            {isPending ? 'Confirmation...' : isConfirming ? 'Deposit en cours...' : 'Deposit'}
                         </Button>
                         {isSuccess && (
                             <Button type="button" variant="outline" onClick={handleReset}>

@@ -1,24 +1,18 @@
 'use client';
 
-import { type EFTEvent } from '@/hooks/contracts/EFT';
+import { useGetAaveVaultEvents, type AaveVaultEvent } from '@/hooks/contracts/AaveVault';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 
-interface TransactionHistoryProps {
-    events: EFTEvent[];
-    isLoading: boolean;
-    error: Error | null;
-    refetch: () => void;
-}
-
-export function TransactionHistory({ events, isLoading, error, refetch }: TransactionHistoryProps) {
+export function AaveVaultHistory() {
+    const { events, isLoading, error, refetch } = useGetAaveVaultEvents(50);
 
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">Historique des transactions</CardTitle>
+                <CardTitle className="text-lg">Historique Aave Vault</CardTitle>
                 <Button
                     variant="ghost"
                     size="sm"
@@ -53,9 +47,7 @@ export function TransactionHistory({ events, isLoading, error, refetch }: Transa
                             <thead>
                                 <tr className="border-b">
                                     <th className="text-left py-2 px-2 font-medium">Type</th>
-                                    <th className="text-left py-2 px-2 font-medium">Adresse</th>
                                     <th className="text-right py-2 px-2 font-medium">Montant</th>
-                                    <th className="text-left py-2 px-2 font-medium">ID Compteur</th>
                                     <th className="text-right py-2 px-2 font-medium">Bloc</th>
                                 </tr>
                             </thead>
@@ -72,22 +64,16 @@ export function TransactionHistory({ events, isLoading, error, refetch }: Transa
     );
 }
 
-function EventRow({ event }: { event: EFTEvent }) {
+function EventRow({ event }: { event: AaveVaultEvent }) {
     return (
         <tr className="border-b last:border-b-0 hover:bg-muted/50">
             <td className="py-2 px-2">
-                <Badge variant={event.type === 'mint' ? 'default' : 'destructive'}>
-                    {event.type === 'mint' ? 'Mint' : 'Burn'}
+                <Badge variant={event.type === 'deposit' ? 'default' : 'destructive'}>
+                    {event.type === 'deposit' ? 'Deposit' : 'Withdraw'}
                 </Badge>
             </td>
-            <td className="py-2 px-2 font-mono text-xs">
-                {event.address.slice(0, 6)}...{event.address.slice(-4)}
-            </td>
             <td className="py-2 px-2 text-right font-mono">
-                {event.amount} kWh
-            </td>
-            <td className="py-2 px-2 text-muted-foreground">
-                {event.meterId || '-'}
+                {event.amount} EURC
             </td>
             <td className="py-2 px-2 text-right text-muted-foreground font-mono text-xs">
                 {event.blockNumber.toString()}

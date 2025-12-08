@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { isAddress } from 'viem';
 
-export function MintForm() {
+interface MintFormProps {
+    onSuccess: () => void;
+}
+
+export function MintForm({ onSuccess }: MintFormProps) {
     const [recipient, setRecipient] = useState('');
     const [amount, setAmount] = useState('');
     const [meterId, setMeterId] = useState('');
@@ -24,9 +28,10 @@ export function MintForm() {
     useEffect(() => {
         if (isSuccess && !prevSuccessRef.current) {
             toast.success('Transaction confirmée');
+            onSuccess();
         }
         prevSuccessRef.current = isSuccess;
-    }, [isSuccess]);
+    }, [isSuccess, onSuccess]);
 
     useEffect(() => {
         if (error && error !== prevErrorRef.current) {
