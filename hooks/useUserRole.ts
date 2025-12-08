@@ -8,6 +8,7 @@ import { useChainId } from 'wagmi';
 
 export type UserRole = 'pmo' | 'producer' | 'consumer' | 'none';
 
+// TODO: changer le nom
 export function useUserRole() {
     const { address, isConnected } = useAccount();
     const chainId = useChainId();
