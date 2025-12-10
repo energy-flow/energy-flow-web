@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useWorkflowStatus, useGetProposalData } from '@/hooks/contracts/pricingDAO';
 import {MemberVotingSection} from '@/components/MemberVotingSection';
-import ConsumptionHistory from "@/components/ConsumptionHistory";
+import ConsumptionHistory from "./_components/ConsumptionHistory";
 import {useGetConsumerLinkyHistory} from "@/hooks/api/linky";
 
 export default function ConsumerDashboard() {
@@ -32,8 +32,8 @@ export default function ConsumerDashboard() {
     if (statusError) return <p>Erreur: {statusError.message}</p>;
 
     return (
-        <div className="space-y-8 py-8">
-            <h1 className="text-2xl font-bold">Espace Consommateur</h1>
+        <>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground">Espace Consommateur</h1>
 
             <MemberVotingSection
                 workflowStatus={status as number}
@@ -43,7 +43,7 @@ export default function ConsumerDashboard() {
                 onVoteSuccess={handleVoteSuccess}
             />
 
-            <ConsumptionHistory data={linkyData?.history ?? []} year={linkyData?.year ?? 0}            />
-        </div>
+            <ConsumptionHistory data={linkyData?.history ?? []} year={linkyData?.year ?? 0} />
+        </>
     );
 }

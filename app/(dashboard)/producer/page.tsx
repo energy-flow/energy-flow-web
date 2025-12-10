@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useGetProposalData, useWorkflowStatus } from "@/hooks/contracts/pricingDAO";
 import { MemberVotingSection } from "@/components/MemberVotingSection";
-import ProductionHistory from "@/components/ProductionHistory";
+import ProductionHistory from "./_components/ProductionHistory";
 import { useGetProducerLinkyHistory } from "@/hooks/api/linky";
 
 export default function ProducerDashboard() {
@@ -35,8 +35,8 @@ export default function ProducerDashboard() {
     const workflowStatus = status as number;
 
     return (
-        <div className="space-y-8 py-8">
-            <h1 className="text-2xl font-bold">Espace Producteur</h1>
+        <>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground">Espace Producteur</h1>
 
             <MemberVotingSection
                 workflowStatus={workflowStatus}
@@ -46,6 +46,6 @@ export default function ProducerDashboard() {
                 onVoteSuccess={handleVoteSuccess}
             />
             <ProductionHistory data={linkyData?.history ?? []} year={linkyData?.year ?? 0} />
-        </div>
+        </>
     );
 }

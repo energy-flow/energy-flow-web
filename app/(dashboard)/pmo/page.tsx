@@ -64,7 +64,7 @@ export default function PMODashboard() {
     const workflowStatus = status as number;
 
     return (
-        <div className="space-y-8 py-8">
+        <>
             <DefiSection
                 pmoDeposited={pmoData?.[0]}
                 pmoWithdrawn={pmoData?.[1]}
@@ -95,6 +95,6 @@ export default function PMODashboard() {
                     onProposalCreated={handleProposalChange}
                 />
             </div>
-        </div>
+        </>
     );
 }

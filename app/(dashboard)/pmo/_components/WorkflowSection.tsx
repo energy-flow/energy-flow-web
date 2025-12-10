@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { WorkflowButton } from '@/components/WorkflowButton';
+import { WorkflowButton } from './WorkflowButton';
 import { type WorkflowAction, WORKFLOW_ACTIONS, WORKFLOW_STATUS_LABELS } from '@/hooks/contracts/pricingDAO';
 
 type WorkflowSectionProps = {

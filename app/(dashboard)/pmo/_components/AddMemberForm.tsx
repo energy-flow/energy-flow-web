@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useAddMember } from '@/hooks/contracts/pricingDAO';
 import { Loader2 } from 'lucide-react';
@@ -15,14 +16,26 @@ export function AddMemberForm({ onSuccess }: AddMemberFormProps) {
     const [isProducer, setIsProducer] = useState(true);
     const { addMember, isPending, isConfirming, isSuccess, error } = useAddMember();
 
+    const prevErrorRef = useRef(error);
+    const prevSuccessRef = useRef(isSuccess);
+
     const isValidAddress = address === '' || isAddress(address);
     const canSubmit = isAddress(address) && !isPending && !isConfirming;
 
     useEffect(() => {
-        if (isSuccess) {
+        if (error && error !== prevErrorRef.current) {
+            toast.error(error.message);
+        }
+        prevErrorRef.current = error;
+    }, [error]);
+
+    useEffect(() => {
+        if (isSuccess && !prevSuccessRef.current) {
+            toast.success('Membre ajouté avec succès');
             setAddress('');
             onSuccess?.();
         }
+        prevSuccessRef.current = isSuccess;
     }, [isSuccess, onSuccess]);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -77,12 +90,6 @@ export function AddMemberForm({ onSuccess }: AddMemberFormProps) {
                     </label>
                 </div>
             </div>
-
-            {error && (
-                <p className="text-sm text-destructive">
-                    Erreur: {error.message}
-                </p>
-            )}
 
             <Button type="submit" disabled={!canSubmit}>
                 {(isPending || isConfirming) && (

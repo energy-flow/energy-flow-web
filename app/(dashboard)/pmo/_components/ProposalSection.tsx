@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CreateProposalForm } from '@/components/CreateProposalForm';
+import { CreateProposalForm } from './CreateProposalForm';
 import { type ProposalData } from '@/hooks/contracts/pricingDAO';
 
 type ProposalSectionProps = {

@@ -1,4 +1,4 @@
-import { MinterRoleGuard } from '@/components/auth/MinterRoleGuard';
+import { MinterRoleGuard } from './_components/MinterRoleGuard';
 
 type Props = { children: React.ReactNode };
 

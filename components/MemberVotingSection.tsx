@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { VoteButton } from '@/components/VoteButton';
 import {
@@ -34,7 +35,24 @@ export function MemberVotingSection({
     onVoteSuccess,
 }: MemberVotingSection) {
     const { data: userVote, isLoading: isLoadingVote } = useGetVote(proposal?.id);
-    const { vote, isPending, isConfirming, isSuccess } = useVote();
+    const { vote, isPending, isConfirming, isSuccess, error } = useVote();
+
+    const prevErrorRef = useRef(error);
+    const prevSuccessRef = useRef(isSuccess);
+
+    useEffect(() => {
+        if (error && error !== prevErrorRef.current) {
+            toast.error(error.message);
+        }
+        prevErrorRef.current = error;
+    }, [error]);
+
+    useEffect(() => {
+        if (isSuccess && !prevSuccessRef.current) {
+            toast.success('Vote enregistré avec succès');
+        }
+        prevSuccessRef.current = isSuccess;
+    }, [isSuccess]);
 
     const [votedChoice, setVotedChoice] = useState<VoteChoice | null>(null);
     const [pendingChoice, setPendingChoice] = useState<VoteChoice | null>(null);

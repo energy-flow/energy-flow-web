@@ -66,7 +66,6 @@ export function useWorkflowAction(action: WorkflowAction) {
         isConfirming,
         isSuccess,
         error,
-        hash,
         reset,
     };
 }

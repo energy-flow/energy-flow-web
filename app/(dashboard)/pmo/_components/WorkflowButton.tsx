@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { type WorkflowAction, useWorkflowAction } from '@/hooks/contracts/pricingDAO';
 import { Loader2 } from 'lucide-react';
@@ -13,13 +14,25 @@ type WorkflowButtonProps = {
 };
 
 export function WorkflowButton({ label, action, enabled, onSuccess }: WorkflowButtonProps) {
-    const { execute, isPending, isConfirming, isSuccess, reset } = useWorkflowAction(action);
+    const { execute, isPending, isConfirming, isSuccess, error, reset } = useWorkflowAction(action);
+
+    const prevErrorRef = useRef(error);
+    const prevSuccessRef = useRef(isSuccess);
 
     useEffect(() => {
-        if (isSuccess) {
+        if (error && error !== prevErrorRef.current) {
+            toast.error(error.message);
+        }
+        prevErrorRef.current = error;
+    }, [error]);
+
+    useEffect(() => {
+        if (isSuccess && !prevSuccessRef.current) {
+            toast.success('Action effectuée avec succès');
             onSuccess?.();
             reset();
         }
+        prevSuccessRef.current = isSuccess;
     }, [isSuccess, onSuccess, reset]);
 
     const isLoading = isPending || isConfirming;

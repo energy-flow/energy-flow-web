@@ -82,7 +82,6 @@ export function useAddMember() {
         isConfirming,
         isSuccess,
         error,
-        hash,
     };
 }
 
@@ -106,6 +105,5 @@ export function useRemoveMember() {
         isConfirming,
         isSuccess,
         error,
-        hash,
     };
 }

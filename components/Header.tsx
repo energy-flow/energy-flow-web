@@ -5,11 +5,12 @@ import { Leaf } from "lucide-react"
 import Link from 'next/link';
 import { useUserRole, UserRole } from "@/hooks/useUserRole";
 import { ROLE_ROUTES } from "@/lib/constants";
+import ThemeToggle from "./ThemeToggle";
 
 const ROLE_CONFIG: Record<UserRole, { label: string; color: string } | null> = {
-    pmo: { label: 'PMO', color: 'bg-emerald-500/15 text-emerald-300' },
-    producer: { label: 'Producteur', color: 'bg-emerald-500 text-black' },
-    consumer: { label: 'Consommateur', color: 'bg-sky-500 text-white' },
+    pmo: { label: 'PMO', color: 'bg-slate-200 text-slate-700 border border-slate-300 dark:bg-secondary dark:text-slate-300 dark:border-border' },
+    producer: { label: 'Producteur', color: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
+    consumer: { label: 'Consommateur', color: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
     none: null,
 };
 
@@ -17,34 +18,33 @@ export default function Header() {
     const { role } = useUserRole();
     const roleConfig = ROLE_CONFIG[role];
     return (
-        <header className="sticky top-0 z-40 border-b border-slate-800 bg-black/60 backdrop-blur">
+        <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-border dark:bg-card/80">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-0">
                 {/* Logo + brand */}
                 <div className="flex items-center gap-2">
-                    {/* Replace this circle with your SVG logo if you want */}
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-lime-400 to-emerald-700">
-                        <Leaf className="h-4 w-4 text-emerald-950" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
+                        <Leaf className="h-4 w-4 text-white" />
                     </div>
                     <div className="flex flex-col leading-tight">
-                  <span className="text-sm font-semibold text-emerald-300">
-                    Energy Flow
-                  </span>
-                        <span className="text-[11px] text-slate-400">
-                    Decentralized Energy System
-                  </span>
+                        <span className="text-sm font-semibold text-emerald-500">
+                            Energy Flow
+                        </span>
+                        <span className="text-[11px] text-slate-500 dark:text-muted-foreground">
+                            Decentralized Energy System
+                        </span>
                     </div>
                 </div>
 
                 {/* Center navigation (desktop) */}
-                <nav className="hidden items-center gap-2 rounded-full bg-slate-900/80 px-1 py-1 text-xs font-medium text-slate-300 shadow-sm lg:flex">
+                <nav className="hidden items-center gap-2 rounded-full bg-slate-100 px-1 py-1 text-xs font-medium text-slate-600 dark:bg-secondary dark:text-slate-300 lg:flex">
                     <Link href="/">
-                        <button className="rounded-full bg-emerald-500 px-4 py-1 text-[11px] font-semibold text-black">
+                        <button className="rounded-full bg-emerald-500 px-4 py-1 text-[11px] font-semibold text-white">
                             Accueil
                         </button>
                     </Link>
                     {role !== 'none' && (
                         <Link href={ROLE_ROUTES[role][0]}>
-                            <button className="rounded-full px-4 py-1 hover:bg-slate-800">
+                            <button className="rounded-full px-4 py-1 hover:bg-slate-200 dark:hover:bg-accent">
                                 Dashboard
                             </button>
                         </Link>
@@ -58,6 +58,7 @@ export default function Header() {
                             {roleConfig.label}
                         </span>
                     )}
+                    <ThemeToggle />
                     <ConnectButton />
                 </div>
             </div>

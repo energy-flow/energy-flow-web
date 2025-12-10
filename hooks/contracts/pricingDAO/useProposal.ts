@@ -108,6 +108,5 @@ export function useCreateProposal() {
         isConfirming,
         isSuccess,
         error,
-        hash,
     };
 }

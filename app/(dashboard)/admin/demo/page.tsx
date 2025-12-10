@@ -11,7 +11,7 @@ import { DepositForm } from './_components/DepositForm';
 import { WithdrawForm } from './_components/WithdrawForm';
 import { PmoInfoChecker } from './_components/PmoInfoChecker';
 import { AaveVaultHistory } from './_components/AaveVaultHistory';
-import { OwnerGuard } from '@/components/auth/OwnerGuard';
+import { OwnerGuard } from '../_components/OwnerGuard';
 import { useGetAavePosition, useTotalDeposited, useTotalWithdrawn } from '@/hooks/contracts/AaveVault';
 import { useTotalSupply, useGetEFTEvents } from '@/hooks/contracts/EFT';
 

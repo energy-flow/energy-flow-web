@@ -93,7 +93,7 @@ export function useDeposit() {
         });
     };
 
-    return { deposit, isPending, isConfirming, isSuccess, error, hash, reset };
+    return { deposit, isPending, isConfirming, isSuccess, error, reset };
 }
 
 // Write withdraw(pmo, amount) - EURC uses 6 decimals, withdraws directly to PMO
@@ -113,5 +113,5 @@ export function useWithdraw() {
         });
     };
 
-    return { withdraw, isPending, isConfirming, isSuccess, error, hash, reset };
+    return { withdraw, isPending, isConfirming, isSuccess, error, reset };
 }

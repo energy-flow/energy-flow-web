@@ -1,8 +1,8 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MembersTable } from '@/components/MembersTable';
-import { AddMemberForm } from '@/components/AddMemberForm';
+import { MembersTable } from './MembersTable';
+import { AddMemberForm } from './AddMemberForm';
 import { type DAOMember } from '@/hooks/contracts/pricingDAO';
 
 type MembersSectionProps = {

@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { type DAOMember, useRemoveMember } from '@/hooks/contracts/pricingDAO';
 import { Loader2, Trash2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 type MembersTableProps = {
     members: DAOMember[];
@@ -17,12 +18,24 @@ function truncateAddress(address: string): string {
 }
 
 function RemoveButton({ address, onSuccess }: { address: `0x${string}`; onSuccess?: () => void }) {
-    const { removeMember, isPending, isConfirming, isSuccess } = useRemoveMember();
+    const { removeMember, isPending, isConfirming, isSuccess, error } = useRemoveMember();
+
+    const prevErrorRef = useRef(error);
+    const prevSuccessRef = useRef(isSuccess);
 
     useEffect(() => {
-        if (isSuccess) {
+        if (error && error !== prevErrorRef.current) {
+            toast.error(error.message);
+        }
+        prevErrorRef.current = error;
+    }, [error]);
+
+    useEffect(() => {
+        if (isSuccess && !prevSuccessRef.current) {
+            toast.success('Membre supprimé avec succès');
             onSuccess?.();
         }
+        prevSuccessRef.current = isSuccess;
     }, [isSuccess, onSuccess]);
 
     return (
@@ -64,7 +77,10 @@ export function MembersTable({ members, isLoading, onMemberRemoved }: MembersTab
                     <tr key={member.address} className="border-b last:border-0">
                         <td className="py-2 font-mono">{truncateAddress(member.address)}</td>
                         <td className="py-2">
-                            <Badge variant={member.role === 'producer' ? 'default' : 'secondary'}>
+                            <Badge className={member.role === 'producer'
+                                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-transparent'
+                                : 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-transparent'
+                            }>
                                 {member.role === 'producer' ? 'Producteur' : 'Consommateur'}
                             </Badge>
                         </td>

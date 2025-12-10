@@ -1,8 +1,5 @@
 import {UserRole} from "@/hooks/useUserRole";
 
-// TODO: enlever les PUBLIC ROUTES
-export const PUBLIC_ROUTES = ['/', '/register'];
-
 export const PROTECTED_ROUTES = [
     '/consumer',
     '/producer',

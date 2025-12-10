@@ -69,7 +69,7 @@ export function useMint() {
         });
     };
 
-    return { mint, isPending, isConfirming, isSuccess, error, hash, reset };
+    return { mint, isPending, isConfirming, isSuccess, error, reset };
 }
 
 export function useBurnFrom() {
@@ -87,5 +87,5 @@ export function useBurnFrom() {
         });
     };
 
-    return { burnFrom, isPending, isConfirming, isSuccess, error, hash, reset };
+    return { burnFrom, isPending, isConfirming, isSuccess, error, reset };
 }

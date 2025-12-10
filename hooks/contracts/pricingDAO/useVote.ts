@@ -12,7 +12,6 @@ export enum VoteChoice {
 }
 
 export function useGetVote(proposalId: bigint | undefined) {
-    // TODO: consider renaming 'enabled' to something more descriptive
     const { address, abi, enabled } = usePricingDAOConfig();
     const { address: userAddress } = useAccount();
 
@@ -43,6 +42,5 @@ export function useVote() {
         });
     };
 
-    // TODO: remove unused properties
-    return { vote, isPending, isConfirming, isSuccess, error, hash, reset };
+    return { vote, isPending, isConfirming, isSuccess, error, reset };
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useCreateProposal } from '@/hooks/contracts/pricingDAO';
 import { Loader2 } from 'lucide-react';
@@ -14,15 +15,27 @@ export function CreateProposalForm({ onSuccess, disabled }: CreateProposalFormPr
     const [price, setPrice] = useState('');
     const { createProposal, isPending, isConfirming, isSuccess, error } = useCreateProposal();
 
+    const prevErrorRef = useRef(error);
+    const prevSuccessRef = useRef(isSuccess);
+
     const priceNumber = parseFloat(price);
     const isValidPrice = price === '' || (!isNaN(priceNumber) && priceNumber > 0);
     const canSubmit = !isNaN(priceNumber) && priceNumber > 0 && !isPending && !isConfirming && !disabled;
 
     useEffect(() => {
-        if (isSuccess) {
+        if (error && error !== prevErrorRef.current) {
+            toast.error(error.message);
+        }
+        prevErrorRef.current = error;
+    }, [error]);
+
+    useEffect(() => {
+        if (isSuccess && !prevSuccessRef.current) {
+            toast.success('Proposition créée avec succès');
             setPrice('');
             onSuccess?.();
         }
+        prevSuccessRef.current = isSuccess;
     }, [isSuccess, onSuccess]);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -59,12 +72,6 @@ export function CreateProposalForm({ onSuccess, disabled }: CreateProposalFormPr
                     <p className="text-sm text-destructive">Le prix doit être supérieur à 0</p>
                 )}
             </div>
-
-            {error && (
-                <p className="text-sm text-destructive">
-                    Erreur: {error.message}
-                </p>
-            )}
 
             {disabled && (
                 <p className="text-sm text-muted-foreground">
