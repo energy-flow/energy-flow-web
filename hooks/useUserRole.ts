@@ -5,10 +5,10 @@ import { useMemo } from 'react';
 import PricingDAOAbi from '@/lib/contracts/abis/PricingDAO.json';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 import { useChainId } from 'wagmi';
+import { DEFAULT_ADMIN_ROLE, PMO_ROLE } from '@/hooks/contracts/pricingDAO/config';
 
-export type UserRole = 'pmo' | 'producer' | 'consumer' | 'none';
+export type UserRole = 'admin' | 'pmo' | 'producer' | 'consumer' | 'none';
 
-// TODO: changer le nom
 export function useUserRole() {
     const { address, isConnected } = useAccount();
     const chainId = useChainId();
@@ -25,11 +25,12 @@ export function useUserRole() {
             {
                 ...contractConfig,
                 functionName: 'hasRole',
-                // TODO: Set the PMO address
-                args: [
-                    '0x0000000000000000000000000000000000000000000000000000000000000000', // DEFAULT_ADMIN_ROLE
-                    address,
-                ],
+                args: [DEFAULT_ADMIN_ROLE, address],
+            },
+            {
+                ...contractConfig,
+                functionName: 'hasRole',
+                args: [PMO_ROLE, address],
             },
             {
                 ...contractConfig,
@@ -50,9 +51,13 @@ export function useUserRole() {
     const role: UserRole = useMemo(() => {
         if (!data) return 'none';
 
-        const [isAdmin, isProducer, isConsumer] = data;
+        const [isAdmin, isPmo, isProducer, isConsumer] = data;
 
-        if (isAdmin.result === true) return 'pmo';
+        // Admin takes priority (platform super-admin)
+        if (isAdmin.result === true) return 'admin';
+        // Then PMO (local operations)
+        if (isPmo.result === true) return 'pmo';
+        // Then members
         if (isProducer.result === true) return 'producer';
         if (isConsumer.result === true) return 'consumer';
 

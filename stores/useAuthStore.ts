@@ -7,9 +7,11 @@ type AuthState = {
     address: string | null;
     isConnected: boolean;
     hasHydrated: boolean;
+    isRoleLoading: boolean;
     setAuth: (auth: { role: UserRole; address: string | null; isConnected: boolean }) => void;
     reset: () => void;
     setHasHydrated: (state: boolean) => void;
+    setRoleLoading: (loading: boolean) => void;
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -19,9 +21,11 @@ export const useAuthStore = create<AuthState>()(
             address: null,
             isConnected: false,
             hasHydrated: false,
+            isRoleLoading: true,
             setAuth: (auth) => set(auth),
             reset: () => set({ role: 'none', address: null, isConnected: false }),
             setHasHydrated: (state) => set({ hasHydrated: state }),
+            setRoleLoading: (loading) => set({ isRoleLoading: loading }),
         }),
         {
             name: 'auth-storage', // localStorage key

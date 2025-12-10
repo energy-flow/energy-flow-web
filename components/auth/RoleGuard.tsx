@@ -19,7 +19,8 @@ export function RoleGuard({ allowedRoles, children }: Props) {
 
     const {
         role,
-        hasHydrated
+        hasHydrated,
+        isRoleLoading
     } = useAuthStore();
 
     const redirectTarget = (() => {
@@ -33,14 +34,19 @@ export function RoleGuard({ allowedRoles, children }: Props) {
     })();
 
     useEffect(() => {
-        // Wait for Zustand to hydrate from localStorage
-        if (!hasHydrated) {
-            return
+        // Wait for Zustand hydration AND role loading from contract
+        if (!hasHydrated || isRoleLoading) {
+            return;
         }
         if (redirectTarget) {
             router.replace(redirectTarget);
         }
-    }, [redirectTarget, router, hasHydrated]);
+    }, [redirectTarget, router, hasHydrated, isRoleLoading]);
+
+    // Don't render until hydrated and role is loaded
+    if (!hasHydrated || isRoleLoading) {
+        return null;
+    }
 
     if (redirectTarget) {
         return null;

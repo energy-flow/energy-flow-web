@@ -54,7 +54,7 @@ export function WithdrawForm({ onSuccess }: WithdrawFormProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-lg">Withdraw EURC</CardTitle>
+                <CardTitle className="text-lg">Retrait EURC</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">

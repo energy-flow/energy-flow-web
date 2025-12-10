@@ -2,7 +2,7 @@
 
 import { useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useMemo } from 'react';
-import { formatEther, parseEther } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 import { usePricingDAOConfig } from './config';
 
 export type ProposalData = {
@@ -65,7 +65,7 @@ export function useGetProposalData() {
         return {
             id: activeProposalId,
             pricePerKWh: data.pricePerKWh,
-            priceInEuros: formatEther(data.pricePerKWh),
+            priceInEuros: formatUnits(data.pricePerKWh, 6),
             applied: data.applied,
             snapshotProducersCount: data.snapshotProducersCount,
             snapshotConsumersCount: data.snapshotConsumersCount,
@@ -79,7 +79,7 @@ export function useGetProposalData() {
     return {
         hasActiveProposal: hasActiveProposal ?? false,
         proposal,
-        currentPrice: currentPrice ? formatEther(currentPrice) : null,
+        currentPrice: currentPrice ? formatUnits(currentPrice, 6) : null,
         isLoading: isLoadingBasic || isLoadingProposal,
         error: basicError,
         refetch,
@@ -92,7 +92,7 @@ export function useCreateProposal() {
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
     const createProposal = (priceInEuros: string) => {
-        const priceInWei = parseEther(priceInEuros);
+        const priceInWei = parseUnits(priceInEuros, 6);
 
         writeContract({
             address,

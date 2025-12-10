@@ -1,5 +1,5 @@
 // Config
-export { usePricingDAOConfig } from './config';
+export { usePricingDAOConfig, DEFAULT_ADMIN_ROLE, PMO_ROLE, MEMBER_ROLE } from './config';
 
 // Hooks WorkflowStatus
 export {
@@ -19,3 +19,6 @@ export { type DAOMember, useGetMembers, useAddMember, useRemoveMember } from './
 
 // Hooks Vote
 export { VoteChoice, useGetVote, useVote } from './useVote';
+
+// Hooks MaxPrice (Admin only)
+export { useGetMaxPrice, useSetMaxPrice } from './useSetMaxPrice';

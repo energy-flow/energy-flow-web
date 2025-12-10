@@ -54,7 +54,7 @@ export function DepositForm({ onSuccess }: DepositFormProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-lg">Deposit EURC</CardTitle>
+                <CardTitle className="text-lg">Dépot EURC</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">

@@ -14,7 +14,12 @@ import { useUserRole } from './useUserRole';
 export function useAuthSync() {
     const { address, isConnected } = useAccount();
     const { role, isLoading } = useUserRole();
-    const { setAuth, reset } = useAuthStore();
+    const { setAuth, reset, setRoleLoading } = useAuthStore();
+
+    // Sync loading state
+    useEffect(() => {
+        setRoleLoading(isLoading);
+    }, [isLoading, setRoleLoading]);
 
     // Sync role to store when it changes
     useEffect(() => {

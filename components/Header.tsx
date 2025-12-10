@@ -8,7 +8,8 @@ import { ROLE_ROUTES } from "@/lib/constants";
 import ThemeToggle from "./ThemeToggle";
 
 const ROLE_CONFIG: Record<UserRole, { label: string; color: string } | null> = {
-    pmo: { label: 'PMO', color: 'bg-slate-200 text-slate-700 border border-slate-300 dark:bg-secondary dark:text-slate-300 dark:border-border' },
+    admin: { label: 'Admin', color: 'bg-red-500/15 text-red-600 dark:text-red-400' },
+    pmo: { label: 'PMO', color: 'bg-violet-500/15 text-violet-600 dark:text-violet-400' },
     producer: { label: 'Producteur', color: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
     consumer: { label: 'Consommateur', color: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
     none: null,
