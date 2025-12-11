@@ -1,7 +1,8 @@
 'use client';
 
-import { useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { useMemo } from 'react';
+import { useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
+import { useQuery } from '@tanstack/react-query';
+import { parseAbiItem } from 'viem';
 import { usePricingDAOConfig } from './config';
 
 export type DAOMember = {
@@ -9,55 +10,54 @@ export type DAOMember = {
     role: 'producer' | 'consumer';
 };
 
-// Calls getMembers + isProducer for each member
+// Fetches members via MemberAdded/MemberRemoved events (no on-chain array)
 export function useGetMembers() {
-    const { address, abi, enabled } = usePricingDAOConfig();
+    const { address, enabled } = usePricingDAOConfig();
+    const publicClient = usePublicClient();
 
-    // Get member addresses
-    const {
-        data: memberAddresses,
-        isLoading: isLoadingMembers,
-        error: membersError,
-        refetch,
-    } = useReadContract({
-        address,
-        abi,
-        functionName: 'getMembers',
-        query: { enabled },
+    const { data: members = [], isLoading, error, refetch } = useQuery({
+        queryKey: ['pricingDAO', 'members', address],
+        queryFn: async (): Promise<DAOMember[]> => {
+            if (!publicClient || !address) return [];
+
+            const [addedLogs, removedLogs] = await Promise.all([
+                publicClient.getLogs({
+                    address,
+                    event: parseAbiItem('event MemberAdded(address indexed member, bool isProducer)'),
+                    fromBlock: BigInt(0),
+                }),
+                publicClient.getLogs({
+                    address,
+                    event: parseAbiItem('event MemberRemoved(address indexed member, bool wasProducer)'),
+                    fromBlock: BigInt(0),
+                }),
+            ]);
+
+            const membersMap = new Map<`0x${string}`, 'producer' | 'consumer'>();
+
+            for (const log of addedLogs) {
+                const member = log.args.member as `0x${string}`;
+                const isProducer = log.args.isProducer as boolean;
+                membersMap.set(member, isProducer ? 'producer' : 'consumer');
+            }
+
+            for (const log of removedLogs) {
+                const member = log.args.member as `0x${string}`;
+                membersMap.delete(member);
+            }
+
+            return Array.from(membersMap.entries()).map(([addr, role]) => ({
+                address: addr,
+                role,
+            }));
+        },
+        enabled: enabled && !!publicClient,
     });
-
-    // Get role for each member
-    const roleContracts = useMemo(() => {
-        if (!memberAddresses || !Array.isArray(memberAddresses)) return [];
-
-        return memberAddresses.map((addr: `0x${string}`) => ({
-            address,
-            abi,
-            functionName: 'isProducer' as const,
-            args: [addr] as const,
-        }));
-    }, [memberAddresses, address, abi]);
-
-    const { data: roleResults, isLoading: isLoadingRoles } = useReadContracts({
-        contracts: roleContracts,
-        query: { enabled: roleContracts.length > 0 },
-    });
-
-    const members: DAOMember[] = useMemo(() => {
-        if (!memberAddresses || !Array.isArray(memberAddresses) || !roleResults) {
-            return [];
-        }
-
-        return memberAddresses.map((addr: `0x${string}`, index: number) => ({
-            address: addr,
-            role: roleResults[index]?.result === true ? 'producer' : 'consumer',
-        }));
-    }, [memberAddresses, roleResults]);
 
     return {
         members,
-        isLoading: isLoadingMembers || isLoadingRoles,
-        error: membersError,
+        isLoading,
+        error,
         refetch,
     };
 }

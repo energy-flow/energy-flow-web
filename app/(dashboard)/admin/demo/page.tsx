@@ -12,10 +12,8 @@ import { WithdrawForm } from './_components/WithdrawForm';
 import { PmoInfoChecker } from './_components/PmoInfoChecker';
 import { AaveVaultHistory } from './_components/AaveVaultHistory';
 import { OwnerGuard } from '../_components/OwnerGuard';
-import { AdminRoleGuard } from '../_components/AdminRoleGuard';
 import { useGetAavePosition, useTotalDeposited, useTotalWithdrawn } from '@/hooks/contracts/AaveVault';
 import { useTotalSupply, useGetEFTEvents } from '@/hooks/contracts/EFT';
-import { SetMaxPriceSection } from './_components/SetMaxPriceSection';
 
 export default function DemoPage() {
     // EFT hooks
@@ -96,12 +94,6 @@ export default function DemoPage() {
                     <AaveVaultHistory />
                 </div>
             </OwnerGuard>
-
-            <AdminRoleGuard>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                    <SetMaxPriceSection />
-                </div>
-            </AdminRoleGuard>
         </div>
     );
 }

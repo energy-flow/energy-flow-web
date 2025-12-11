@@ -6,7 +6,6 @@ import { type Abi, keccak256, toBytes } from 'viem';
 export const pricingDAOAbi = PricingDAOAbi.abi as Abi;
 
 // Role constants matching the smart contract
-export const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000' as const;
 export const PMO_ROLE = keccak256(toBytes('PMO_ROLE'));
 export const MEMBER_ROLE = keccak256(toBytes('MEMBER_ROLE'));
 
