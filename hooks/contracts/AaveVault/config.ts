@@ -14,6 +14,6 @@ export function useAaveVaultConfig() {
     return {
         address: addresses?.AaveVault as `0x${string}`,
         abi: aaveVaultAbi,
-        enabled: !!addresses?.AaveVault && addresses.AaveVault !== '0x...',
+        enabled: !!addresses?.AaveVault,
     };
 }

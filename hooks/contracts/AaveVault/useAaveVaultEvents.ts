@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { usePublicClient, useBlockNumber } from 'wagmi';
-import { formatUnits, parseAbiItem } from 'viem';
-import { useAaveVaultConfig } from './config';
+import { useQuery } from '@tanstack/react-query';
+import { formatUnits } from 'viem';
+
+const PONDER_API_URL = process.env.NEXT_PUBLIC_PONDER_URL || 'http://localhost:42069';
 
 export type AaveVaultEvent = {
     type: 'deposit' | 'withdraw';
@@ -12,71 +12,54 @@ export type AaveVaultEvent = {
     transactionHash: string;
 };
 
-const depositedEvent = parseAbiItem('event Deposited(uint256 amount)');
-const withdrawnEvent = parseAbiItem('event Withdrawn(uint256 amount)');
-
 export function useGetAaveVaultEvents(limit = 50) {
-    const { address, enabled } = useAaveVaultConfig();
-    const publicClient = usePublicClient();
-    const { data: currentBlock } = useBlockNumber();
-
-    const [events, setEvents] = useState<AaveVaultEvent[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
-
-    const fetchEvents = useCallback(async () => {
-        if (!publicClient || !address || !enabled || !currentBlock) return;
-
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const fromBlock = currentBlock > BigInt(1000) ? currentBlock - BigInt(1000) : BigInt(0);
-
-            const [depositLogs, withdrawLogs] = await Promise.all([
-                publicClient.getLogs({
-                    address,
-                    event: depositedEvent,
-                    fromBlock,
-                    toBlock: 'latest',
+    const { data: events = [], isLoading, error, refetch } = useQuery({
+        queryKey: ['ponder', 'aaveVaultEvents', limit],
+        queryFn: async (): Promise<AaveVaultEvent[]> => {
+            const response = await fetch(`${PONDER_API_URL}/graphql`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `
+                        query GetAaveVaultEvents($limit: Int) {
+                            aaveVaultEvents(orderBy: "blockNumber", orderDirection: "desc", limit: $limit) {
+                                items {
+                                    id
+                                    type
+                                    amount
+                                    blockNumber
+                                    txHash
+                                }
+                            }
+                        }
+                    `,
+                    variables: { limit },
                 }),
-                publicClient.getLogs({
-                    address,
-                    event: withdrawnEvent,
-                    fromBlock,
-                    toBlock: 'latest',
-                }),
-            ]);
+            });
 
-            const depositEvents: AaveVaultEvent[] = depositLogs.map((log) => ({
-                type: 'deposit' as const,
-                amount: formatUnits(log.args.amount ?? BigInt(0), 6),
-                blockNumber: log.blockNumber ?? BigInt(0),
-                transactionHash: log.transactionHash ?? '',
+            if (!response.ok) {
+                throw new Error(`Ponder API error: ${response.status}`);
+            }
+
+            const { data, errors } = await response.json();
+
+            if (errors) {
+                throw new Error(errors[0]?.message || 'GraphQL error');
+            }
+
+            return data.aaveVaultEvents.items.map((e: {
+                type: string;
+                amount: string;
+                blockNumber: string;
+                txHash: string;
+            }) => ({
+                type: e.type as 'deposit' | 'withdraw',
+                amount: formatUnits(BigInt(e.amount), 6),
+                blockNumber: BigInt(e.blockNumber),
+                transactionHash: e.txHash,
             }));
+        },
+    });
 
-            const withdrawEvents: AaveVaultEvent[] = withdrawLogs.map((log) => ({
-                type: 'withdraw' as const,
-                amount: formatUnits(log.args.amount ?? BigInt(0), 6),
-                blockNumber: log.blockNumber ?? BigInt(0),
-                transactionHash: log.transactionHash ?? '',
-            }));
-
-            const allEvents = [...depositEvents, ...withdrawEvents]
-                .sort((a, b) => Number(b.blockNumber - a.blockNumber))
-                .slice(0, limit);
-
-            setEvents(allEvents);
-        } catch (err) {
-            setError(err instanceof Error ? err : new Error('Failed to fetch events'));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [publicClient, address, enabled, currentBlock, limit]);
-
-    useEffect(() => {
-        fetchEvents();
-    }, [fetchEvents]);
-
-    return { events, isLoading, error, refetch: fetchEvents };
+    return { events, isLoading, error, refetch };
 }

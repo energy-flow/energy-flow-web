@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { usePublicClient, useBlockNumber } from 'wagmi';
-import { parseAbiItem, formatUnits } from 'viem';
-import { useEFTConfig } from './config';
+import { useQuery } from '@tanstack/react-query';
+import { formatUnits } from 'viem';
+
+const PONDER_API_URL = process.env.NEXT_PUBLIC_PONDER_URL || 'http://localhost:42069';
 
 export type EFTEvent = {
     type: 'mint' | 'burn';
@@ -14,74 +14,60 @@ export type EFTEvent = {
     transactionHash: `0x${string}`;
 };
 
-const energyTokenizedEvent = parseAbiItem('event EnergyTokenized(address indexed recipient, uint256 amount, string meterId)');
-const energyBurnedEvent = parseAbiItem('event EnergyBurned(address indexed account, uint256 amount)');
-
 export function useGetEFTEvents(limit = 50) {
-    const { address, enabled } = useEFTConfig();
-    const publicClient = usePublicClient();
-    const { data: currentBlock } = useBlockNumber();
-
-    const [events, setEvents] = useState<EFTEvent[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
-
-    const fetchEvents = useCallback(async () => {
-        if (!publicClient || !address || !enabled || !currentBlock) return;
-
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const fromBlock = currentBlock > BigInt(1000) ? currentBlock - BigInt(1000) : BigInt(0);
-
-            const [mintLogs, burnLogs] = await Promise.all([
-                publicClient.getLogs({
-                    address,
-                    event: energyTokenizedEvent,
-                    fromBlock,
-                    toBlock: 'latest',
+    const { data: events = [], isLoading, error, refetch } = useQuery({
+        queryKey: ['ponder', 'eftEvents', limit],
+        queryFn: async (): Promise<EFTEvent[]> => {
+            const response = await fetch(`${PONDER_API_URL}/graphql`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `
+                        query GetEFTEvents($limit: Int) {
+                            eftEvents(orderBy: "blockNumber", orderDirection: "desc", limit: $limit) {
+                                items {
+                                    id
+                                    type
+                                    address
+                                    amount
+                                    meterId
+                                    blockNumber
+                                    txHash
+                                }
+                            }
+                        }
+                    `,
+                    variables: { limit },
                 }),
-                publicClient.getLogs({
-                    address,
-                    event: energyBurnedEvent,
-                    fromBlock,
-                    toBlock: 'latest',
-                }),
-            ]);
+            });
 
-            const mintEvents: EFTEvent[] = mintLogs.map((log) => ({
-                type: 'mint' as const,
-                address: log.args.recipient as `0x${string}`,
-                amount: formatUnits(log.args.amount as bigint, 18),
-                meterId: log.args.meterId as string,
-                blockNumber: log.blockNumber,
-                transactionHash: log.transactionHash,
+            if (!response.ok) {
+                throw new Error(`Ponder API error: ${response.status}`);
+            }
+
+            const { data, errors } = await response.json();
+
+            if (errors) {
+                throw new Error(errors[0]?.message || 'GraphQL error');
+            }
+
+            return data.eftEvents.items.map((e: {
+                type: string;
+                address: string;
+                amount: string;
+                meterId: string | null;
+                blockNumber: string;
+                txHash: string;
+            }) => ({
+                type: e.type as 'mint' | 'burn',
+                address: e.address as `0x${string}`,
+                amount: formatUnits(BigInt(e.amount), 18),
+                meterId: e.meterId || undefined,
+                blockNumber: BigInt(e.blockNumber),
+                transactionHash: e.txHash as `0x${string}`,
             }));
+        },
+    });
 
-            const burnEvents: EFTEvent[] = burnLogs.map((log) => ({
-                type: 'burn' as const,
-                address: log.args.account as `0x${string}`,
-                amount: formatUnits(log.args.amount as bigint, 18),
-                blockNumber: log.blockNumber,
-                transactionHash: log.transactionHash,
-            }));
-
-            const allEvents = [...mintEvents, ...burnEvents]
-                .sort((a, b) => Number(b.blockNumber - a.blockNumber))
-                .slice(0, limit);
-
-            setEvents(allEvents);
-        } catch (err) {
-            setError(err instanceof Error ? err : new Error('Failed to fetch events'));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [publicClient, address, enabled, currentBlock, limit]);
-
-    useEffect(() => {
-        fetchEvents();
-    }, [fetchEvents]);
-
-    return { events, isLoading, error, refetch: fetchEvents };
+    return { events, isLoading, error, refetch };
 }

@@ -7,8 +7,8 @@ export const CONTRACT_ADDRESSES = {
     },
     // Sepolia
     11155111: {
-        pricingDAO: "0x...",
-        EFT: "0x...",
-        AaveVault: "0x..."
+        pricingDAO: "0x84C41DEe19DeB10420621fD25887874B58735400",
+        EFT: "0xc5868984c142AB55Aa8928982bA8Ac313500EF01",
+        AaveVault: "0xA856134BE466e248c0d3865CAd1737580897477D"
     }
 } as const;

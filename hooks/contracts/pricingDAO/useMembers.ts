@@ -1,57 +1,56 @@
 'use client';
 
-import { useWriteContract, useWaitForTransactionReceipt, usePublicClient } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useQuery } from '@tanstack/react-query';
-import { parseAbiItem } from 'viem';
 import { usePricingDAOConfig } from './config';
+
+const PONDER_API_URL = process.env.NEXT_PUBLIC_PONDER_URL || 'http://localhost:42069';
 
 export type DAOMember = {
     address: `0x${string}`;
     role: 'producer' | 'consumer';
 };
 
-// Fetches members via MemberAdded/MemberRemoved events (no on-chain array)
+// Fetches members via Ponder GraphQL API (indexed from MemberAdded/MemberRemoved events)
 export function useGetMembers() {
-    const { address, enabled } = usePricingDAOConfig();
-    const publicClient = usePublicClient();
+    const { enabled } = usePricingDAOConfig();
 
     const { data: members = [], isLoading, error, refetch } = useQuery({
-        queryKey: ['pricingDAO', 'members', address],
+        queryKey: ['ponder', 'members'],
         queryFn: async (): Promise<DAOMember[]> => {
-            if (!publicClient || !address) return [];
-
-            const [addedLogs, removedLogs] = await Promise.all([
-                publicClient.getLogs({
-                    address,
-                    event: parseAbiItem('event MemberAdded(address indexed member, bool isProducer)'),
-                    fromBlock: BigInt(0),
+            const response = await fetch(`${PONDER_API_URL}/graphql`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `
+                        query GetMembers {
+                            members {
+                                items {
+                                    address
+                                    isProducer
+                                }
+                            }
+                        }
+                    `,
                 }),
-                publicClient.getLogs({
-                    address,
-                    event: parseAbiItem('event MemberRemoved(address indexed member, bool wasProducer)'),
-                    fromBlock: BigInt(0),
-                }),
-            ]);
+            });
 
-            const membersMap = new Map<`0x${string}`, 'producer' | 'consumer'>();
-
-            for (const log of addedLogs) {
-                const member = log.args.member as `0x${string}`;
-                const isProducer = log.args.isProducer as boolean;
-                membersMap.set(member, isProducer ? 'producer' : 'consumer');
+            if (!response.ok) {
+                throw new Error(`Ponder API error: ${response.status}`);
             }
 
-            for (const log of removedLogs) {
-                const member = log.args.member as `0x${string}`;
-                membersMap.delete(member);
+            const { data, errors } = await response.json();
+
+            if (errors) {
+                throw new Error(errors[0]?.message || 'GraphQL error');
             }
 
-            return Array.from(membersMap.entries()).map(([addr, role]) => ({
-                address: addr,
-                role,
+            return data.members.items.map((m: { address: string; isProducer: boolean }) => ({
+                address: m.address as `0x${string}`,
+                role: m.isProducer ? 'producer' : 'consumer',
             }));
         },
-        enabled: enabled && !!publicClient,
+        enabled,
     });
 
     return {
