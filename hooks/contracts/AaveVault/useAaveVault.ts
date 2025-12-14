@@ -1,29 +1,14 @@
 'use client';
 
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount, useChainId } from 'wagmi';
 import { parseUnits } from 'viem';
 import { useAaveVaultConfig } from './config';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
+import ERC20AbiJson from '@/lib/contracts/abis/ERC20.json';
+import type { Abi } from 'viem';
 
 type Address = `0x${string}` | undefined;
-
-// Read owner() and compare with connected account
-export function useIsOwner() {
-    const { address, abi, enabled } = useAaveVaultConfig();
-    const { address: account } = useAccount();
-
-    const { data: owner, isLoading } = useReadContract({
-        address,
-        abi,
-        functionName: 'owner',
-        query: { enabled },
-    });
-
-    return {
-        isOwner: owner !== undefined && account !== undefined && owner === account,
-        isLoading,
-        owner: owner as Address,
-    };
-}
+const erc20Abi = ERC20AbiJson.abi as Abi;
 
 // Read getAavePosition() - returns aEURC balance
 export function useGetAavePosition() {
@@ -76,40 +61,88 @@ export function useGetPmoInfo(pmoAddress: Address) {
     });
 }
 
-// Write deposit(pmo, amount) - EURC uses 6 decimals
+// Read EURC allowance for vault
+export function useEurcAllowance() {
+    const chainId = useChainId();
+    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    const eurcAddress = addresses?.EURC as `0x${string}`;
+    const vaultAddress = addresses?.AaveVault as `0x${string}`;
+    const { address: account } = useAccount();
+
+    return useReadContract({
+        address: eurcAddress,
+        abi: erc20Abi,
+        functionName: 'allowance',
+        args: account && vaultAddress ? [account, vaultAddress] : undefined,
+        query: {
+            enabled: !!eurcAddress && !!vaultAddress && !!account,
+        },
+    });
+}
+
+// Approve vault to spend EURC/EURS
+export function useApproveEurc() {
+    const chainId = useChainId();
+    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    const eurcAddress = addresses?.EURC as `0x${string}`;
+    const vaultAddress = addresses?.AaveVault as `0x${string}`;
+    const decimals = addresses?.stablecoinDecimals ?? 6;
+
+    const { data: hash, writeContract, isPending, error, reset } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+    const approve = (amountEurc: string) => {
+        if (!vaultAddress || !eurcAddress) return;
+        const amount = parseUnits(amountEurc, decimals);
+        writeContract({
+            address: eurcAddress,
+            abi: erc20Abi,
+            functionName: 'approve',
+            args: [vaultAddress, amount],
+        });
+    };
+
+    return { approve, isPending, isConfirming, isSuccess, error, reset };
+}
+
+// Write deposit(amount)
 export function useDeposit() {
+    const chainId = useChainId();
+    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    const decimals = addresses?.stablecoinDecimals ?? 6;
     const { address, abi } = useAaveVaultConfig();
     const { data: hash, writeContract, isPending, error, reset } = useWriteContract();
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-    const deposit = (pmo: Address, amountEurc: string) => {
-        if (!pmo) return;
-        const amount = parseUnits(amountEurc, 6);
+    const deposit = (amountEurc: string) => {
+        const amount = parseUnits(amountEurc, decimals);
         writeContract({
             address,
             abi,
             functionName: 'deposit',
-            args: [pmo, amount],
+            args: [amount],
         });
     };
 
     return { deposit, isPending, isConfirming, isSuccess, error, reset };
 }
 
-// Write withdraw(pmo, amount) - EURC uses 6 decimals, withdraws directly to PMO
+// Write withdraw(amount)
 export function useWithdraw() {
+    const chainId = useChainId();
+    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    const decimals = addresses?.stablecoinDecimals ?? 6;
     const { address, abi } = useAaveVaultConfig();
     const { data: hash, writeContract, isPending, error, reset } = useWriteContract();
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
-    const withdraw = (pmo: Address, amountEurc: string) => {
-        if (!pmo) return;
-        const amount = parseUnits(amountEurc, 6);
+    const withdraw = (amountEurc: string) => {
+        const amount = parseUnits(amountEurc, decimals);
         writeContract({
             address,
             abi,
             functionName: 'withdraw',
-            args: [pmo, amount],
+            args: [amount],
         });
     };
 

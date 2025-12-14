@@ -16,7 +16,7 @@ export function AaveVaultHistory() {
                 <Button
                     variant="ghost"
                     size="sm"
-                    onClick={refetch}
+                    onClick={() => refetch()}
                     disabled={isLoading}
                 >
                     <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />

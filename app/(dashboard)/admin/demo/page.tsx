@@ -11,7 +11,6 @@ import { DepositForm } from './_components/DepositForm';
 import { WithdrawForm } from './_components/WithdrawForm';
 import { PmoInfoChecker } from './_components/PmoInfoChecker';
 import { AaveVaultHistory } from './_components/AaveVaultHistory';
-import { OwnerGuard } from '../_components/OwnerGuard';
 import { useGetAavePosition, useTotalDeposited, useTotalWithdrawn } from '@/hooks/contracts/AaveVault';
 import { useTotalSupply, useGetEFTEvents } from '@/hooks/contracts/EFT';
 
@@ -76,24 +75,22 @@ export default function DemoPage() {
                 </p>
             </div>
 
-            <OwnerGuard>
-                <div className="space-y-6">
-                    <AaveVaultInfo
-                        aavePosition={aavePosition as bigint | undefined}
-                        totalDeposited={totalDeposited as bigint | undefined}
-                        totalWithdrawn={totalWithdrawn as bigint | undefined}
-                        isLoading={isLoadingVault}
-                    />
+            <div className="space-y-6">
+                <AaveVaultInfo
+                    aavePosition={aavePosition as bigint | undefined}
+                    totalDeposited={totalDeposited as bigint | undefined}
+                    totalWithdrawn={totalWithdrawn as bigint | undefined}
+                    isLoading={isLoadingVault}
+                />
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <DepositForm onSuccess={refetchVault} />
-                        <WithdrawForm onSuccess={refetchVault} />
-                        <PmoInfoChecker />
-                    </div>
-
-                    <AaveVaultHistory />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <DepositForm onSuccess={refetchVault} />
+                    <WithdrawForm onSuccess={refetchVault} />
+                    <PmoInfoChecker />
                 </div>
-            </OwnerGuard>
+
+                <AaveVaultHistory />
+            </div>
         </div>
     );
 }

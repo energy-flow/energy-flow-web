@@ -1,8 +1,10 @@
 'use client';
 
 import { formatUnits } from 'viem';
+import { useChainId } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 
 interface AaveVaultInfoProps {
     aavePosition: bigint | undefined;
@@ -12,15 +14,19 @@ interface AaveVaultInfoProps {
 }
 
 export function AaveVaultInfo({ aavePosition, totalDeposited, totalWithdrawn, isLoading }: AaveVaultInfoProps) {
-    const formattedPosition = aavePosition !== undefined ? formatUnits(aavePosition, 6) : '0';
-    const formattedDeposited = totalDeposited !== undefined ? formatUnits(totalDeposited, 6) : '0';
-    const formattedWithdrawn = totalWithdrawn !== undefined ? formatUnits(totalWithdrawn, 6) : '0';
+    const chainId = useChainId();
+    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    const decimals = addresses?.stablecoinDecimals ?? 6;
+
+    const formattedPosition = aavePosition !== undefined ? formatUnits(aavePosition, decimals) : '0';
+    const formattedDeposited = totalDeposited !== undefined ? formatUnits(totalDeposited, decimals) : '0';
+    const formattedWithdrawn = totalWithdrawn !== undefined ? formatUnits(totalWithdrawn, decimals) : '0';
 
     // Calculate interest
     const netDeposited = (totalDeposited ?? BigInt(0)) - (totalWithdrawn ?? BigInt(0));
     const interest = (aavePosition ?? BigInt(0)) - netDeposited;
-    const interestNum = Number(formatUnits(interest, 6));
-    const netDepositedNum = Number(formatUnits(netDeposited, 6));
+    const interestNum = Number(formatUnits(interest, decimals));
+    const netDepositedNum = Number(formatUnits(netDeposited, decimals));
     const interestPercent = netDepositedNum > 0 ? (interestNum / netDepositedNum) * 100 : 0;
 
     const isPositive = interest >= BigInt(0);

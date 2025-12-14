@@ -5,14 +5,12 @@ import { useWithdraw } from '@/hooks/contracts/AaveVault';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { isAddress } from 'viem';
 
 interface WithdrawFormProps {
     onSuccess: () => void;
 }
 
 export function WithdrawForm({ onSuccess }: WithdrawFormProps) {
-    const [pmoAddress, setPmoAddress] = useState('');
     const [amount, setAmount] = useState('');
 
     const { withdraw, isPending, isConfirming, isSuccess, error, reset } = useWithdraw();
@@ -20,13 +18,12 @@ export function WithdrawForm({ onSuccess }: WithdrawFormProps) {
     const prevSuccessRef = useRef(isSuccess);
     const prevErrorRef = useRef(error);
 
-    const isValidPmoAddress = pmoAddress === '' || isAddress(pmoAddress);
     const isValidAmount = amount === '' || (!isNaN(Number(amount)) && Number(amount) > 0);
-    const canSubmit = isAddress(pmoAddress) && Number(amount) > 0;
+    const canSubmit = !isNaN(Number(amount)) && Number(amount) > 0;
 
     useEffect(() => {
         if (isSuccess && !prevSuccessRef.current) {
-            toast.success('Withdraw confirmé');
+            toast.success('Retrait confirme');
             onSuccess();
         }
         prevSuccessRef.current = isSuccess;
@@ -42,11 +39,10 @@ export function WithdrawForm({ onSuccess }: WithdrawFormProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!canSubmit) return;
-        withdraw(pmoAddress as `0x${string}`, amount);
+        withdraw(amount);
     };
 
     const handleReset = () => {
-        setPmoAddress('');
         setAmount('');
         reset();
     };
@@ -58,24 +54,6 @@ export function WithdrawForm({ onSuccess }: WithdrawFormProps) {
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Destinataire (PMO)
-                        </label>
-                        <input
-                            type="text"
-                            value={pmoAddress}
-                            onChange={(e) => setPmoAddress(e.target.value)}
-                            placeholder="0x..."
-                            className={`w-full px-3 py-2 border rounded-md bg-background font-mono text-sm ${
-                                !isValidPmoAddress ? 'border-destructive' : 'border-input'
-                            }`}
-                        />
-                        {!isValidPmoAddress && (
-                            <p className="text-sm text-destructive mt-1">Adresse invalide</p>
-                        )}
-                    </div>
-
                     <div>
                         <label className="block text-sm font-medium mb-1">
                             Montant (EURC)
@@ -91,7 +69,7 @@ export function WithdrawForm({ onSuccess }: WithdrawFormProps) {
                         />
                         {!isValidAmount && (
                             <p className="text-sm text-destructive mt-1">
-                                Le montant doit être positif
+                                Le montant doit etre positif
                             </p>
                         )}
                     </div>
@@ -103,11 +81,11 @@ export function WithdrawForm({ onSuccess }: WithdrawFormProps) {
                             disabled={!canSubmit || isPending || isConfirming}
                             className="flex-1"
                         >
-                            {isPending ? 'Confirmation...' : isConfirming ? 'Withdraw en cours...' : 'Withdraw'}
+                            {isPending ? 'Confirmation...' : isConfirming ? 'Retrait en cours...' : 'Retirer'}
                         </Button>
                         {isSuccess && (
                             <Button type="button" variant="outline" onClick={handleReset}>
-                                Réinitialiser
+                                Reinitialiser
                             </Button>
                         )}
                     </div>
