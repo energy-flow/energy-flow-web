@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Energy Flow Web
 
-## Getting Started
+Application web Next.js pour la plateforme d'autoconsommation collective Energy Flow.
 
-First, run the development server:
+## Stack technique
+
+| Technologie | Version | Rôle |
+|-------------|---------|------|
+| Next.js | 16 | Framework React (App Router) |
+| React | 19 | UI composants |
+| TypeScript | 5.x | Typage statique |
+| TailwindCSS | 4 | Styling + dark mode |
+| wagmi | 2.19.5 | Hooks smart contracts |
+| viem | 2.40.3 | Client Ethereum |
+| RainbowKit | 2.2.10 | Connexion wallet |
+| React Query | 5.x | Cache serveur |
+| Zustand | 5.x | État client |
+| shadcn/ui | - | Composants UI |
+
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Commandes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev      # Serveur dev (http://localhost:3000)
+npm run build    # Build production
+npm run start    # Serveur production
+npm run lint     # ESLint
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+```
+app/
+├── (public)/           # Landing page
+├── (dashboard)/
+│   ├── consumer/       # Espace consommateur
+│   ├── producer/       # Espace producteur
+│   └── pmo/            # Administration PMO
+└── api/                # Routes API mock
 
-To learn more about Next.js, take a look at the following resources:
+components/             # Composants réutilisables
+hooks/
+├── api/                # Hooks HTTP (React Query)
+└── contracts/          # Hooks smart contracts (wagmi)
+stores/                 # État Zustand
+lib/contracts/          # Adresses et ABIs
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page |
+| `/consumer` | Dashboard consommateur + vote |
+| `/producer` | Dashboard producteur + vote |
+| `/pmo` | Gestion workflow, membres, propositions, DeFi |
 
-## Deploy on Vercel
+## Authentification
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Connexion wallet via RainbowKit → Lecture des rôles depuis PricingDAO (`hasRole`, `isProducer`, `isConsumer`)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Déploiement
+
+Hébergé sur **Vercel** avec connexion à l'indexer Ponder sur Railway.
