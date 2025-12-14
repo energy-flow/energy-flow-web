@@ -1,8 +1,10 @@
 'use client';
 
 import { formatUnits } from 'viem';
+import { useChainId } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 
 interface DefiSectionProps {
     pmoDeposited: bigint | undefined;
@@ -21,6 +23,10 @@ export function DefiSection({
     aavePosition,
     isLoading,
 }: DefiSectionProps) {
+    const chainId = useChainId();
+    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    const decimals = addresses?.stablecoinDecimals ?? 6;
+
     // Calculate PMO capital
     const pmoCapital = (pmoDeposited ?? BigInt(0)) - (pmoWithdrawn ?? BigInt(0));
 
@@ -35,9 +41,9 @@ export function DefiSection({
     }
 
     // Convert to numbers for display
-    const pmoCapitalNum = Number(formatUnits(pmoCapital, 6));
-    const pmoInterestNum = Number(formatUnits(pmoInterest, 6));
-    const aavePositionNum = Number(formatUnits(aavePosition ?? BigInt(0), 6));
+    const pmoCapitalNum = Number(formatUnits(pmoCapital, decimals));
+    const pmoInterestNum = Number(formatUnits(pmoInterest, decimals));
+    const aavePositionNum = Number(formatUnits(aavePosition ?? BigInt(0), decimals));
 
     // Calculate yield percentage
     const yieldPercent = pmoCapitalNum > 0 ? (pmoInterestNum / pmoCapitalNum) * 100 : 0;

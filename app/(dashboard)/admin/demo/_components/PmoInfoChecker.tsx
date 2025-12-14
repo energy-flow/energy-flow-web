@@ -5,10 +5,15 @@ import { useGetPmoInfo } from '@/hooks/contracts/AaveVault';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatUnits, isAddress } from 'viem';
+import { useChainId } from 'wagmi';
+import { CONTRACT_ADDRESSES } from '@/lib/contracts/addresses';
 
 export function PmoInfoChecker() {
     const [address, setAddress] = useState('');
     const [checkedAddress, setCheckedAddress] = useState<`0x${string}` | undefined>();
+    const chainId = useChainId();
+    const addresses = CONTRACT_ADDRESSES[chainId as keyof typeof CONTRACT_ADDRESSES];
+    const decimals = addresses?.stablecoinDecimals ?? 6;
 
     const { data: pmoInfo, isLoading } = useGetPmoInfo(checkedAddress);
 
@@ -16,8 +21,8 @@ export function PmoInfoChecker() {
     const canCheck = isAddress(address);
 
     const pmoData = pmoInfo as [bigint, bigint] | undefined;
-    const formattedDeposited = pmoData ? formatUnits(pmoData[0], 6) : null;
-    const formattedWithdrawn = pmoData ? formatUnits(pmoData[1], 6) : null;
+    const formattedDeposited = pmoData ? formatUnits(pmoData[0], decimals) : null;
+    const formattedWithdrawn = pmoData ? formatUnits(pmoData[1], decimals) : null;
 
     const handleCheck = () => {
         if (canCheck) {
